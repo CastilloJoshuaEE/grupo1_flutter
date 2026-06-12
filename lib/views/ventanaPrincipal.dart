@@ -16,7 +16,7 @@ class _MyHomePageVentanaPrincipalState extends State<MyHomePageVentanaPrincipal>
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: NetworkImage(
-              "https://images.unsplash.com/photo-1522778119026-d647f0596b68?w=600&h=800&fit=crop",
+              "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&h=800&fit=crop",
             ),
             fit: BoxFit.cover,
           ),
@@ -38,11 +38,7 @@ class _MyHomePageVentanaPrincipalState extends State<MyHomePageVentanaPrincipal>
 
                   style: TextStyle(fontSize: 16, color: Colors.grey[700], fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  "Matricula: 20240001",
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
+          
                 const SizedBox(height: 20),
                 const Icon(Icons.sports_soccer, size: 80, color: Colors.blueGrey),
                 const SizedBox(height: 20),

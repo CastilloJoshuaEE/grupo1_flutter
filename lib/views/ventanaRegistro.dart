@@ -49,7 +49,7 @@ class _MyHomePageVentanaRegistroState extends State<MyHomePageVentanaRegistro> {
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: NetworkImage(
-              "https://images.unsplash.com/photo-1533473359331-840569607314?w=600&h=800&fit=crop",
+              "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&h=800&fit=crop",
             ),
             fit: BoxFit.cover,
           ),
@@ -72,11 +72,7 @@ class _MyHomePageVentanaRegistroState extends State<MyHomePageVentanaRegistro> {
 
                     style: TextStyle(fontSize: 16, color: Colors.grey[700], fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    "Matricula: 20240001",
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
+              
                   const SizedBox(height: 20),
                   const Text(
                     "Registro de Usuario",

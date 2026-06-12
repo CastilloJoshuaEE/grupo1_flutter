@@ -54,7 +54,7 @@ class _MyHomePageStateVentanaLogin extends State<MyHomePageVentanaLogin> {
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: NetworkImage(
-              "https://images.unsplash.com/photo-1459922979304-750b4e4f5b69?w=600&h=800&fit=crop",
+              "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&h=800&fit=crop",
             ),
             fit: BoxFit.cover,
           ),
