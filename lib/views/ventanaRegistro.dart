@@ -167,7 +167,7 @@ class _MyHomePageVentanaRegistroState
     }
   }
 
-  void _limpiarFormulario() {
+  void _limpiarFormulario({bool mostrarMensaje = false}) {
     _formKey.currentState?.reset();
     _nombreController.clear();
     _apellidoController.clear();
@@ -182,6 +182,10 @@ class _MyHomePageVentanaRegistroState
       _paisSeleccionado = 'Ecuador';
       _generoSeleccionado = 'Masculino';
     });
+
+    if (mostrarMensaje) {
+      _mostrarMensaje('Todos los campos han sido borrados');
+    }
   }
 
   void _mostrarMensaje(String mensaje, {bool esError = false}) {
@@ -428,24 +432,52 @@ class _MyHomePageVentanaRegistroState
                     validator: _validarConfirmacion,
                   ),
                   const SizedBox(height: 22),
-                  FilledButton.icon(
-                    onPressed: _registrarUsuario,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF2E7D32),
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 52),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: _registrarUsuario,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFF2E7D32),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(0, 52),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          icon: const Icon(Icons.check_circle_outline_rounded),
+                          label: const Text(
+                            'Aceptar',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    icon: const Icon(Icons.check_circle_outline_rounded),
-                    label: const Text(
-                      'Registrar estudiante',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _limpiarFormulario(mostrarMensaje: true),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red.shade700,
+                            side: BorderSide(color: Colors.red.shade400),
+                            minimumSize: const Size(0, 52),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          icon: const Icon(Icons.delete_outline_rounded),
+                          label: const Text(
+                            'Borrar',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                   if (!widget.integradoEnNavigationBar) ...[
                     const SizedBox(height: 8),
