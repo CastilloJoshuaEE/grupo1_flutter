@@ -6,126 +6,187 @@ class MyHomePageVentanaLogin extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePageVentanaLogin> createState() => _MyHomePageStateVentanaLogin();
+  State<MyHomePageVentanaLogin> createState() =>
+      _MyHomePageStateVentanaLogin();
 }
 
-class _MyHomePageStateVentanaLogin extends State<MyHomePageVentanaLogin> {
+class _MyHomePageStateVentanaLogin
+    extends State<MyHomePageVentanaLogin> {
   final TextEditingController _correoController = TextEditingController();
   final TextEditingController _claveController = TextEditingController();
 
-  final String usuarioValido = "admin@fifa.com";
-  final String claveValida = "fifa2026";
+  final String usuarioValido = 'admin@fifa.com';
+  final String claveValida = 'fifa2026';
+  bool _ocultarClave = true;
+
+  @override
+  void dispose() {
+    _correoController.dispose();
+    _claveController.dispose();
+    super.dispose();
+  }
 
   void validarInicioSesion() {
-    String correo = _correoController.text.trim();
-    String clave = _claveController.text.trim();
+    final String correo = _correoController.text.trim();
+    final String clave = _claveController.text.trim();
 
     if (correo.isEmpty || clave.isEmpty) {
-      print("Acceso Negado - Campos vacios");
-      _mostrarMensaje("Error", "Por favor complete todos los campos");
-    } else if (correo == usuarioValido && clave == claveValida) {
-      print("Acceso concedido");
-      Navigator.pushNamed(context, "principal");
-    } else {
-      print("Acceso Negado - Credenciales incorrectas");
-      _mostrarMensaje("Error", "Correo o clave incorrectos");
+      _mostrarMensaje('Complete todos los campos', esError: true);
+      return;
     }
+
+    if (correo == usuarioValido && clave == claveValida) {
+      Navigator.pushReplacementNamed(context, 'principal');
+      return;
+    }
+
+    _mostrarMensaje('Correo o contraseña incorrectos', esError: true);
   }
 
-  void _mostrarMensaje(String titulo, String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensaje),
-        backgroundColor: titulo == "Error" ? Colors.red : Colors.green,
-      ),
-    );
-  }
-
-  void irARegistro() {
-    print("Va a registrar un nuevo usuario");
-    Navigator.pushNamed(context, "registro");
+  void _mostrarMensaje(String mensaje, {bool esError = false}) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(mensaje),
+          backgroundColor:
+              esError ? Colors.red.shade700 : const Color(0xFF2E7D32),
+        ),
+      );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: null,
       body: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: NetworkImage(
-              "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&h=800&fit=crop",
-            ),
-            fit: BoxFit.cover,
+          gradient: LinearGradient(
+            colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-        child: Center(
-          child: Container(
-            width: 370,
-            padding: const EdgeInsets.all(20),
-            margin: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "CASTILLO MEREJILDO JOSHÚA JAVIER, ESPINOZA GOMEZ JENNIFFER MARISOL, GABINO VILLAO JOEL FABIAN, PARRA AGUAYO KEVIN JOEL, VERA CHUQUIMARCA LESLIE ARIANNA",
-                  style: TextStyle(fontSize: 16, color: Colors.grey[700], fontWeight: FontWeight.bold),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Container(
+                width: double.infinity,
+                constraints: const BoxConstraints(maxWidth: 420),
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x33000000),
+                      blurRadius: 24,
+                      offset: Offset(0, 12),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  "FIFA World Cup",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 78,
+                      height: 78,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE3F2FD),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.school_rounded,
+                        size: 42,
+                        color: Color(0xFF1565C0),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'EduTask',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF17324D),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Organiza tus actividades académicas',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Color(0xFF667085)),
+                    ),
+                    const SizedBox(height: 26),
+                    TextField(
+                      controller: _correoController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Correo electrónico',
+                        hintText: 'admin@fifa.com',
+                        prefixIcon: Icon(Icons.email_outlined),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: _claveController,
+                      obscureText: _ocultarClave,
+                      onSubmitted: (_) => validarInicioSesion(),
+                      decoration: InputDecoration(
+                        labelText: 'Contraseña',
+                        hintText: 'fifa2026',
+                        prefixIcon: const Icon(Icons.lock_outline_rounded),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() => _ocultarClave = !_ocultarClave);
+                          },
+                          icon: Icon(
+                            _ocultarClave
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    FilledButton(
+                      onPressed: validarInicioSesion,
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 52),
+                        backgroundColor: const Color(0xFF1565C0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        'Ingresar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    OutlinedButton(
+                      onPressed: () => Navigator.pushNamed(context, 'registro'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 52),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text('Crear una cuenta'),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Grupo 1 • Proyecto EduTask',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF98A2B3),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 25),
-                TextField(
-                  controller: _correoController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Correo Electronico",
-                    hintText: "admin@fifa.com",
-                  ),
-                ),
-                const SizedBox(height: 15),
-                TextField(
-                  controller: _claveController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Clave",
-                    hintText: "fifa2026",
-                  ),
-                ),
-                const SizedBox(height: 25),
-                ElevatedButton(
-                  onPressed: () {
-                    validarInicioSesion();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.limeAccent,
-                    foregroundColor: Colors.black,
-                    minimumSize: const Size(double.infinity, 45),
-                  ),
-                  child: const Text("Ingresar", style: TextStyle(fontSize: 16)),
-                ),
-                const SizedBox(height: 15),
-                ElevatedButton(
-                  onPressed: () {
-                    irARegistro();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amberAccent,
-                    foregroundColor: Colors.black,
-                    minimumSize: const Size(double.infinity, 45),
-                  ),
-                  child: const Text("Registrarse", style: TextStyle(fontSize: 16)),
-                ),
-              ],
+              ),
             ),
           ),
         ),

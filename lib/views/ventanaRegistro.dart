@@ -1,419 +1,500 @@
 import 'package:flutter/material.dart';
 
 class MyHomePageVentanaRegistro extends StatefulWidget {
-  const MyHomePageVentanaRegistro({super.key});
+  const MyHomePageVentanaRegistro({
+    super.key,
+    this.integradoEnNavigationBar = false,
+  });
+
+  final bool integradoEnNavigationBar;
 
   @override
-  State<MyHomePageVentanaRegistro> createState() => _MyHomePageVentanaRegistroState();
+  State<MyHomePageVentanaRegistro> createState() =>
+      _MyHomePageVentanaRegistroState();
 }
 
-class _MyHomePageVentanaRegistroState extends State<MyHomePageVentanaRegistro> {
-  // Controladores para campos de texto
+class _MyHomePageVentanaRegistroState
+    extends State<MyHomePageVentanaRegistro> {
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _apellidoController = TextEditingController();
   final TextEditingController _correoController = TextEditingController();
   final TextEditingController _claveController = TextEditingController();
-  final TextEditingController _confirmarClaveController = TextEditingController();
+  final TextEditingController _confirmarClaveController =
+      TextEditingController();
   final TextEditingController _telefonoController = TextEditingController();
+  final TextEditingController _fechaController = TextEditingController();
 
-  // Variables para Calendario (DatePicker)
-  DateTime _fechaNacimiento = DateTime.now();
-  String _fechaSeleccionada = "";
+  DateTime? _fechaNacimiento;
+  String _paisSeleccionado = 'Ecuador';
+  String _generoSeleccionado = 'Masculino';
+  bool _ocultarClave = true;
+  bool _ocultarConfirmacion = true;
 
-  // Variables para ComboBox (Dropdown)
-  String _paisSeleccionado = "Ecuador";
-  final List<String> _paises = [
-    "Ecuador",
-    "Argentina",
-    "Brasil",
-    "Chile",
-    "Colombia",
-    "Peru",
-    "Uruguay",
-    "Paraguay",
-    "Bolivia",
-    "Venezuela",
+  final List<String> _paises = const [
+    'Ecuador',
+    'Argentina',
+    'Brasil',
+    'Chile',
+    'Colombia',
+    'Perú',
+    'Uruguay',
+    'Paraguay',
+    'Bolivia',
+    'Venezuela',
   ];
 
-  // Variables para RadioButton
-  String _generoSeleccionado = "Masculino";
+  @override
+  void dispose() {
+    _nombreController.dispose();
+    _apellidoController.dispose();
+    _correoController.dispose();
+    _claveController.dispose();
+    _confirmarClaveController.dispose();
+    _telefonoController.dispose();
+    _fechaController.dispose();
+    super.dispose();
+  }
 
-  // Metodo para seleccionar fecha
   Future<void> _seleccionarFecha() async {
-    DateTime? picked = await showDatePicker(
+    final DateTime ahora = DateTime.now();
+    final DateTime? fecha = await showDatePicker(
       context: context,
-      initialDate: _fechaNacimiento,
+      initialDate: _fechaNacimiento ?? DateTime(2005, 1, 1),
       firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.blueGrey,
-            ),
-          ),
-          child: child!,
-        );
-      },
+      lastDate: ahora,
+      helpText: 'Selecciona la fecha de nacimiento',
     );
 
-    if (picked != null && picked != _fechaNacimiento) {
-      setState(() {
-        _fechaNacimiento = picked;
-        _fechaSeleccionada =
-            "${picked.day}/${picked.month}/${picked.year}";
+    if (fecha == null) return;
+
+    setState(() {
+      _fechaNacimiento = fecha;
+      _fechaController.text =
+          '${fecha.day.toString().padLeft(2, '0')}/'
+          '${fecha.month.toString().padLeft(2, '0')}/'
+          '${fecha.year}';
+    });
+  }
+
+  String? _validarTextoObligatorio(String? valor, String campo) {
+    if (valor == null || valor.trim().isEmpty) {
+      return 'Ingrese $campo';
+    }
+    return null;
+  }
+
+  String? _validarCorreo(String? valor) {
+    if (valor == null || valor.trim().isEmpty) {
+      return 'Ingrese el correo electrónico';
+    }
+
+    final RegExp correoValido = RegExp(
+      r'^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$',
+    );
+
+    if (!correoValido.hasMatch(valor.trim())) {
+      return 'Ingrese un correo válido';
+    }
+
+    return null;
+  }
+
+  String? _validarTelefono(String? valor) {
+    if (valor == null || valor.trim().isEmpty) {
+      return 'Ingrese el teléfono';
+    }
+
+    if (!RegExp(r'^\d{10}$').hasMatch(valor.trim())) {
+      return 'Ingrese 10 dígitos';
+    }
+
+    return null;
+  }
+
+  String? _validarClave(String? valor) {
+    if (valor == null || valor.isEmpty) {
+      return 'Ingrese una contraseña';
+    }
+
+    if (valor.length < 6) {
+      return 'Debe tener al menos 6 caracteres';
+    }
+
+    return null;
+  }
+
+  String? _validarConfirmacion(String? valor) {
+    if (valor == null || valor.isEmpty) {
+      return 'Confirme la contraseña';
+    }
+
+    if (valor != _claveController.text) {
+      return 'Las contraseñas no coinciden';
+    }
+
+    return null;
+  }
+
+  void _registrarUsuario() {
+    FocusScope.of(context).unfocus();
+
+    final bool formularioValido = _formKey.currentState?.validate() ?? false;
+
+    if (_fechaNacimiento == null) {
+      _mostrarMensaje('Seleccione la fecha de nacimiento', esError: true);
+      return;
+    }
+
+    if (!formularioValido) return;
+
+    debugPrint('Registro exitoso:');
+    debugPrint('Nombre: ${_nombreController.text} ${_apellidoController.text}');
+    debugPrint('Correo: ${_correoController.text}');
+    debugPrint('Teléfono: ${_telefonoController.text}');
+    debugPrint('Fecha: ${_fechaController.text}');
+    debugPrint('País: $_paisSeleccionado');
+    debugPrint('Género: $_generoSeleccionado');
+
+    _mostrarMensaje('Estudiante registrado correctamente');
+    _limpiarFormulario();
+
+    if (!widget.integradoEnNavigationBar) {
+      Future<void>.delayed(const Duration(milliseconds: 900), () {
+        if (mounted) Navigator.pop(context);
       });
     }
   }
 
-  void registrarUsuario() {
-    String nombre = _nombreController.text.trim();
-    String apellido = _apellidoController.text.trim();
-    String correo = _correoController.text.trim();
-    String clave = _claveController.text.trim();
-    String confirmarClave = _confirmarClaveController.text.trim();
-    String telefono = _telefonoController.text.trim();
+  void _limpiarFormulario() {
+    _formKey.currentState?.reset();
+    _nombreController.clear();
+    _apellidoController.clear();
+    _correoController.clear();
+    _claveController.clear();
+    _confirmarClaveController.clear();
+    _telefonoController.clear();
+    _fechaController.clear();
 
-    // Validacion de campos vacios
-    if (nombre.isEmpty ||
-        apellido.isEmpty ||
-        correo.isEmpty ||
-        clave.isEmpty ||
-        confirmarClave.isEmpty ||
-        telefono.isEmpty ||
-        _fechaSeleccionada.isEmpty) {
-      print("Registro fallido - Campos vacios");
-      _mostrarMensaje("Error", "Por favor complete todos los campos");
-      return;
-    }
-
-    // Validacion de correo
-    if (!correo.contains("@") || !correo.contains(".")) {
-      print("Registro fallido - Correo invalido");
-      _mostrarMensaje("Error", "Ingrese un correo electronico valido");
-      return;
-    }
-
-    // Validacion de claves
-    if (clave != confirmarClave) {
-      print("Registro fallido - Las claves no coinciden");
-      _mostrarMensaje("Error", "Las claves no coinciden");
-      return;
-    }
-
-    // Validacion de longitud de clave
-    if (clave.length < 6) {
-      print("Registro fallido - Clave muy corta");
-      _mostrarMensaje("Error", "La clave debe tener al menos 6 caracteres");
-      return;
-    }
-
-    // Registro exitoso
-    print("Registro exitoso - Nuevo usuario:");
-    print("Nombre: $nombre $apellido");
-    print("Correo: $correo");
-    print("Telefono: $telefono");
-    print("Fecha de Nacimiento: $_fechaSeleccionada");
-    print("Pais: $_paisSeleccionado");
-    print("Genero: $_generoSeleccionado");
-
-    _mostrarMensaje("Exito", "Usuario registrado correctamente");
-
-    // Regresar al login despues de 2 segundos
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pop(context);
+    setState(() {
+      _fechaNacimiento = null;
+      _paisSeleccionado = 'Ecuador';
+      _generoSeleccionado = 'Masculino';
     });
   }
 
-  void _mostrarMensaje(String titulo, String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensaje),
-        backgroundColor: titulo == "Error" ? Colors.red : Colors.green,
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  void _mostrarMensaje(String mensaje, {bool esError = false}) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(mensaje),
+          backgroundColor:
+              esError ? Colors.red.shade700 : const Color(0xFF2E7D32),
+        ),
+      );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: null,
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: NetworkImage(
-              "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&h=800&fit=crop",
-            ),
-            fit: BoxFit.cover,
-          ),
-        ),
+    final Widget contenido = SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Container(
-              width: 380,
-              padding: const EdgeInsets.all(20),
-              margin: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.92),
-                borderRadius: BorderRadius.circular(20),
-              ),
+          child: Container(
+            width: double.infinity,
+            constraints: const BoxConstraints(maxWidth: 560),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xFFE1E6ED)),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x12000000),
+                  blurRadius: 18,
+                  offset: Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Form(
+              key: _formKey,
               child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Nombre del estudiante
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE3F2FD),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.person_add_alt_1_rounded,
+                      color: Color(0xFF1565C0),
+                      size: 34,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
                   const Text(
-                    "CASTILLO MEREJILDO JOSHUA JAVIER, ESPINOZA GOMEZ JENNIFFER MARISOL, GABINO VILLAO JOEL FABIAN, PARRA AGUAYO KEVIN JOEL, VERA CHUQUIMARCA LESLIE ARIANNA",
+                    'Registro de estudiante',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold,
+                      color: Color(0xFF17324D),
                     ),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 6),
                   const Text(
-                    "Registro de Usuario",
+                    'Completa la información para crear una cuenta en EduTask.',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey,
+                      color: Color(0xFF667085),
+                      height: 1.35,
                     ),
                   ),
-                  const SizedBox(height: 20),
-
-                  // Campo 1: Nombre
-                  TextField(
+                  const SizedBox(height: 22),
+                  TextFormField(
                     controller: _nombreController,
+                    textCapitalization: TextCapitalization.words,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Nombre",
-                      prefixIcon: Icon(Icons.person),
-                      hintText: "Ingrese su nombre",
+                      labelText: 'Nombre',
+                      hintText: 'Ingrese el nombre',
+                      prefixIcon: Icon(Icons.person_outline_rounded),
                     ),
+                    validator: (valor) =>
+                        _validarTextoObligatorio(valor, 'el nombre'),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Campo 2: Apellido
-                  TextField(
+                  const SizedBox(height: 14),
+                  TextFormField(
                     controller: _apellidoController,
+                    textCapitalization: TextCapitalization.words,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Apellido",
-                      prefixIcon: Icon(Icons.person_outline),
-                      hintText: "Ingrese su apellido",
+                      labelText: 'Apellido',
+                      hintText: 'Ingrese el apellido',
+                      prefixIcon: Icon(Icons.badge_outlined),
                     ),
+                    validator: (valor) =>
+                        _validarTextoObligatorio(valor, 'el apellido'),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Campo 3: Correo Electronico
-                  TextField(
+                  const SizedBox(height: 14),
+                  TextFormField(
                     controller: _correoController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Correo Electronico",
-                      prefixIcon: Icon(Icons.email),
-                      hintText: "ejemplo@correo.com",
+                      labelText: 'Correo electrónico',
+                      hintText: 'ejemplo@correo.com',
+                      prefixIcon: Icon(Icons.email_outlined),
                     ),
+                    validator: _validarCorreo,
                   ),
-                  const SizedBox(height: 12),
-
-                  // Campo 4: Telefono
-                  TextField(
+                  const SizedBox(height: 14),
+                  TextFormField(
                     controller: _telefonoController,
                     keyboardType: TextInputType.phone,
+                    maxLength: 10,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Telefono",
-                      prefixIcon: Icon(Icons.phone),
-                      hintText: "0999999999",
+                      labelText: 'Teléfono',
+                      hintText: '0999999999',
+                      prefixIcon: Icon(Icons.phone_outlined),
+                      counterText: '',
                     ),
+                    validator: _validarTelefono,
                   ),
-                  const SizedBox(height: 12),
-
-                  // Campo 5: Calendario (DatePicker)
-                  GestureDetector(
+                  const SizedBox(height: 14),
+                  TextFormField(
+                    controller: _fechaController,
+                    readOnly: true,
                     onTap: _seleccionarFecha,
-                    child: AbsorbPointer(
-                      child: TextField(
-                        controller: TextEditingController(
-                          text: _fechaSeleccionada.isEmpty
-                              ? "Seleccione fecha de nacimiento"
-                              : _fechaSeleccionada,
-                        ),
-                        decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
-                          labelText: "Fecha de Nacimiento",
-                          prefixIcon: const Icon(Icons.calendar_today),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.arrow_drop_down),
-                            onPressed: _seleccionarFecha,
-                          ),
-                        ),
-                      ),
+                    decoration: const InputDecoration(
+                      labelText: 'Fecha de nacimiento',
+                      hintText: 'Seleccione una fecha',
+                      prefixIcon: Icon(Icons.calendar_month_outlined),
+                      suffixIcon: Icon(Icons.arrow_drop_down_rounded),
                     ),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Campo 6: ComboBox (Dropdown)
+                  const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
                     value: _paisSeleccionado,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Pais de Residencia",
-                      prefixIcon: Icon(Icons.public),
+                      labelText: 'País de residencia',
+                      prefixIcon: Icon(Icons.public_rounded),
                     ),
-                    items: _paises.map((String pais) {
-                      return DropdownMenuItem<String>(
-                        value: pais,
-                        child: Text(pais),
-                      );
-                    }).toList(),
-                    onChanged: (String? nuevoPais) {
-                      setState(() {
-                        _paisSeleccionado = nuevoPais!;
-                      });
+                    items: _paises
+                        .map(
+                          (pais) => DropdownMenuItem<String>(
+                            value: pais,
+                            child: Text(pais),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (pais) {
+                      if (pais == null) return;
+                      setState(() => _paisSeleccionado = pais);
                     },
                   ),
-                  const SizedBox(height: 12),
-
-                  // Campo 7: RadioButton (Genero)
+                  const SizedBox(height: 14),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400),
-                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFD7DEE8)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "Genero",
+                          'Género',
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
+                            color: Color(0xFF4A5568),
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        Row(
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 0,
                           children: [
-                            Expanded(
-                              child: RadioListTile<String>(
-                                title: const Text("Masculino"),
-                                value: "Masculino",
-                                groupValue: _generoSeleccionado,
-                                onChanged: (String? value) {
-                                  setState(() {
-                                    _generoSeleccionado = value!;
-                                  });
-                                },
-                                contentPadding: EdgeInsets.zero,
-                                dense: true,
-                              ),
+                            _OpcionGenero(
+                              valor: 'Masculino',
+                              seleccionado: _generoSeleccionado,
+                              onChanged: (valor) {
+                                setState(() => _generoSeleccionado = valor);
+                              },
                             ),
-                            Expanded(
-                              child: RadioListTile<String>(
-                                title: const Text("Femenino"),
-                                value: "Femenino",
-                                groupValue: _generoSeleccionado,
-                                onChanged: (String? value) {
-                                  setState(() {
-                                    _generoSeleccionado = value!;
-                                  });
-                                },
-                                contentPadding: EdgeInsets.zero,
-                                dense: true,
-                              ),
+                            _OpcionGenero(
+                              valor: 'Femenino',
+                              seleccionado: _generoSeleccionado,
+                              onChanged: (valor) {
+                                setState(() => _generoSeleccionado = valor);
+                              },
                             ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: RadioListTile<String>(
-                                title: const Text("Otro"),
-                                value: "Otro",
-                                groupValue: _generoSeleccionado,
-                                onChanged: (String? value) {
-                                  setState(() {
-                                    _generoSeleccionado = value!;
-                                  });
-                                },
-                                contentPadding: EdgeInsets.zero,
-                                dense: true,
-                              ),
+                            _OpcionGenero(
+                              valor: 'Otro',
+                              seleccionado: _generoSeleccionado,
+                              onChanged: (valor) {
+                                setState(() => _generoSeleccionado = valor);
+                              },
                             ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Campo 8: Clave
-                  TextField(
+                  const SizedBox(height: 14),
+                  TextFormField(
                     controller: _claveController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Clave",
-                      prefixIcon: Icon(Icons.lock),
-                      hintText: "Minimo 6 caracteres",
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Campo 9: Confirmar Clave
-                  TextField(
-                    controller: _confirmarClaveController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Confirmar Clave",
-                      prefixIcon: Icon(Icons.lock_outline),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Boton Registrar
-                  ElevatedButton(
-                    onPressed: () {
-                      registrarUsuario();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.greenAccent.shade700,
-                      foregroundColor: Colors.black,
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    obscureText: _ocultarClave,
+                    decoration: InputDecoration(
+                      labelText: 'Contraseña',
+                      hintText: 'Mínimo 6 caracteres',
+                      prefixIcon: const Icon(Icons.lock_outline_rounded),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() => _ocultarClave = !_ocultarClave);
+                        },
+                        icon: Icon(
+                          _ocultarClave
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                        ),
                       ),
                     ),
-                    child: const Text(
-                      "Registrarse",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    validator: _validarClave,
+                  ),
+                  const SizedBox(height: 14),
+                  TextFormField(
+                    controller: _confirmarClaveController,
+                    obscureText: _ocultarConfirmacion,
+                    decoration: InputDecoration(
+                      labelText: 'Confirmar contraseña',
+                      prefixIcon: const Icon(Icons.lock_reset_rounded),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(
+                            () => _ocultarConfirmacion =
+                                !_ocultarConfirmacion,
+                          );
+                        },
+                        icon: Icon(
+                          _ocultarConfirmacion
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                        ),
+                      ),
+                    ),
+                    validator: _validarConfirmacion,
+                  ),
+                  const SizedBox(height: 22),
+                  FilledButton.icon(
+                    onPressed: _registrarUsuario,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF2E7D32),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 52),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    icon: const Icon(Icons.check_circle_outline_rounded),
+                    label: const Text(
+                      'Registrar estudiante',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Boton Volver al Login
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      "Volver al Login",
-                      style: TextStyle(fontSize: 16),
+                  if (!widget.integradoEnNavigationBar) ...[
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back_rounded),
+                      label: const Text('Volver al inicio de sesión'),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
           ),
         ),
       ),
+    );
+
+    if (widget.integradoEnNavigationBar) {
+      return contenido;
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Registro'),
+        backgroundColor: const Color(0xFF1565C0),
+        foregroundColor: Colors.white,
+      ),
+      body: contenido,
+    );
+  }
+}
+
+class _OpcionGenero extends StatelessWidget {
+  const _OpcionGenero({
+    required this.valor,
+    required this.seleccionado,
+    required this.onChanged,
+  });
+
+  final String valor;
+  final String seleccionado;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return ChoiceChip(
+      label: Text(valor),
+      selected: seleccionado == valor,
+      onSelected: (_) => onChanged(valor),
     );
   }
 }
