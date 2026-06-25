@@ -78,10 +78,7 @@ class _MyHomePageVentanaPrincipalState
           ),
         ],
       ),
-      body: IndexedStack(
-        index: _indiceSeleccionado,
-        children: _pantallas,
-      ),
+      body: IndexedStack(index: _indiceSeleccionado, children: _pantallas),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _indiceSeleccionado,
         onDestinationSelected: _seleccionarOpcion,
@@ -152,11 +149,7 @@ class _InicioEduTask extends StatelessWidget {
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.school_rounded,
-                    color: Colors.white,
-                    size: 42,
-                  ),
+                  Icon(Icons.school_rounded, color: Colors.white, size: 42),
                   SizedBox(height: 18),
                   Text(
                     '¡Bienvenido a EduTask!',
@@ -321,11 +314,7 @@ class _FormularioProximo extends StatelessWidget {
                   color: const Color(0xFF1565C0).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icono,
-                  size: 40,
-                  color: const Color(0xFF1565C0),
-                ),
+                child: Icon(icono, size: 40, color: const Color(0xFF1565C0)),
               ),
               const SizedBox(height: 20),
               Text(
@@ -352,4 +341,41 @@ class _FormularioProximo extends StatelessWidget {
       ),
     );
   }
+}
+
+//
+// Función para actualizar la imagen dinámicamente según el contenido
+String obtenerImagenPorContenido(String titulo, String contenido) {
+  final textoAnalizar = '$titulo $contenido'.toLowerCase();
+
+  // 1. Categoría Deportes
+  if (textoAnalizar.contains('deporte') ||
+      textoAnalizar.contains('fútbol') ||
+      textoAnalizar.contains('estadio') ||
+      textoAnalizar.contains('ecuador')) {
+    return 'https://loremflickr.com/600/400/sports,soccer/all';
+  }
+  // 2. Categoría Política o Economía
+  else if (textoAnalizar.contains('política') ||
+      textoAnalizar.contains('gobierno') ||
+      textoAnalizar.contains('dinero') ||
+      textoAnalizar.contains('asamblea')) {
+    return 'https://loremflickr.com/600/400/politics,business/all';
+  }
+  // 3. Categoría Tecnología
+  else if (textoAnalizar.contains('tecnología') ||
+      textoAnalizar.contains('internet') ||
+      textoAnalizar.contains('ia') ||
+      textoAnalizar.contains('celular')) {
+    return 'https://loremflickr.com/600/400/technology,tech/all';
+  }
+  // 4. Categoría Sucesos / General
+  else if (textoAnalizar.contains('accidente') ||
+      textoAnalizar.contains('tránsito') ||
+      textoAnalizar.contains('alerta')) {
+    return 'https://loremflickr.com/600/400/city,ambulance/all';
+  }
+
+  // URL por defecto en caso de no encontrar ninguna palabra clave específica
+  return 'https://loremflickr.com/600/400/news/all';
 }
