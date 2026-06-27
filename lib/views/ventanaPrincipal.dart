@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fifa/views/ventanaRegistro.dart';
+import 'package:fifa/views/ventanaNoticias.dart';
 
 class MyHomePageVentanaPrincipal extends StatefulWidget {
   const MyHomePageVentanaPrincipal({super.key});
@@ -20,6 +21,7 @@ class _MyHomePageVentanaPrincipalState
 
   final List<String> _titulos = const [
     'Inicio',
+    'Noticias',
     'Registro',
     'Tareas',
     'Perfil',
@@ -30,10 +32,11 @@ class _MyHomePageVentanaPrincipalState
     super.initState();
     _pantallas = [
       _InicioEduTask(
-        onAbrirRegistro: () => _seleccionarOpcion(1),
-        onAbrirTareas: () => _seleccionarOpcion(2),
-        onAbrirPerfil: () => _seleccionarOpcion(3),
+        onAbrirRegistro: () => _seleccionarOpcion(2),
+        onAbrirTareas: () => _seleccionarOpcion(3),
+        onAbrirPerfil: () => _seleccionarOpcion(4),
       ),
+      const VentanaNoticias(),
       const MyHomePageVentanaRegistro(integradoEnNavigationBar: true),
       const _FormularioProximo(
         icono: Icons.task_alt_rounded,
@@ -91,6 +94,11 @@ class _MyHomePageVentanaPrincipalState
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home_rounded, color: _colorPrimario),
             label: 'Inicio',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.newspaper_outlined),
+            selectedIcon: Icon(Icons.newspaper_rounded, color: _colorPrimario),
+            label: 'Noticias',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_add_alt_outlined),
